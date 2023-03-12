@@ -11,6 +11,12 @@
 #include <vector>
 #include <map>
 
+#define EXPECT(ptr, y) \
+do { \
+    assert(*(ptr) == (y)); \
+    (ptr)++; \
+} while(0);
+
 namespace my_json_parser{
 
 enum class ObjectType{
@@ -24,6 +30,13 @@ enum class ObjectType{
     _null,
 };
 
+enum class STATE{
+    _success,
+};
+
+typedef struct my_json_context{
+    const char* json;
+}my_json_context;
 
 class zh_value{
     using String = std::string;
@@ -40,7 +53,7 @@ class zh_value{
         
     public:
         zh_value(){
-
+            
         }
 };
 
