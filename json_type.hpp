@@ -10,14 +10,23 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <any>
 
 #define EXPECT(ptr, y) \
 do { \
     assert(*(ptr) == (y)); \
     (ptr)++; \
-} while(0);
+} while(0)
 
 namespace my_json_parser{
+
+using String = std::string;
+using Object = std::map<String, zh_value>;
+using Float = double;
+using Integer = int;
+using Array = std::vector<zh_value>;
+using Number = std::variant<Float, Integer>;
+using Value = std::variant<String, Object, Number, Array>;
 
 enum class ObjectType{
     _object,
@@ -32,27 +41,23 @@ enum class ObjectType{
 
 enum class STATE{
     _success,
+    _parse_object_err,
 };
 
 typedef struct my_json_context{
     const char* json;
+    bool end;
 }my_json_context;
 
 class zh_value{
-    using String = std::string;
-    using Object = std::map<String, zh_value>;
-    using Float = double;
-    using Integer = int;
-    using Array = std::vector<zh_value>;
-    using Number = std::variant<Float, Integer>;
-    using Value = std::variant<String, Object, Number, Array>;
+
 
     private:
         ObjectType t;
         Value t;
         
     public:
-        zh_value(){
+        zh_value(ObjectType type){
             
         }
 };
