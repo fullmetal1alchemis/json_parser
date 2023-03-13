@@ -20,7 +20,6 @@ class my_json_parser{
     std::shared_ptr<zh_value> root;
 
     STATE my_parse_object(zh_value &val, my_json_context &jc);
-    
     STATE my_parse_number(zh_value &val, my_json_context &jc);
     STATE my_parse_float(zh_value &val, my_json_context &jc);
     STATE my_parse_integer(zh_value &val, my_json_context &jc);
@@ -33,8 +32,6 @@ class my_json_parser{
         my_json_parser(){
 
         }
-
-
 
 };
 
@@ -55,23 +52,44 @@ auto my_json_parser::my_parse_object(zh_value &val, my_json_context &jc)->STATE{
     my_parse_ws(jc);
     if(jc.end)
         return STATE::_parse_object_err;
-    EXPECT(jc.json, '"');
+
     STATE _state = my_parse_string(val, jc);
     if( _state != STATE::_success ){
         return _state;
     }
 
-    my_parse_ws()
+    my_parse_ws(jc);
+    if(jc.end)
+        return STATE::_parse_object_err;
+
+    
 }
+
 
 auto my_json_parser::my_parse_string(zh_value &val, my_json_context &jc)->STATE{
     
     EXPECT(jc.json, '"');
+
+    String s;
+    
+    while(*(jc.json)){
+        switch(*(jc.json)){
+            case '\\':
+                break;
+            case '"':
+                val.insert_string(s);
+                return STATE::_success;
+ 
+            default:
+            
+        }
+    }
+
 }
 
 auto my_json_parser::my_parse_ws(my_json_context &jc)->STATE{
     constexpr char whitespace[4] = {'\t', ' ', '\r', '\n'};
-    while( jc.json && (jc.json, whitespace, 0) ){
+    while( jc.json && CMP_EXTEND4(jc.json, whitespace, 0) ){
         jc.json++;
     }
     if(!(jc.json))
