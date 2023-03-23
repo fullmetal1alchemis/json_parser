@@ -45,6 +45,7 @@ enum class ObjectType{
 enum class STATE{
     _success,
     _parse_object_err,
+    _early_end,
 };
 
 typedef struct my_json_context{

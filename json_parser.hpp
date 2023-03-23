@@ -49,18 +49,16 @@ class my_json_generator{
 auto my_json_parser::my_parse_object(zh_value &val, my_json_context &jc)->STATE{
     EXPECT(jc.json, '{');
 
-    my_parse_ws(jc);
-    if(jc.end)
-        return STATE::_parse_object_err;
+    if( my_parse_ws(jc) != STATE::_success )
+        return STATE::_early_end;
 
     STATE _state = my_parse_string(val, jc);
     if( _state != STATE::_success ){
         return _state;
     }
 
-    my_parse_ws(jc);
-    if(jc.end)
-        return STATE::_parse_object_err;
+    if( my_parse_ws(jc) != STATE::_success )
+        return STATE::_early_end;  
 
     
 }
@@ -72,19 +70,48 @@ auto my_json_parser::my_parse_string(zh_value &val, my_json_context &jc)->STATE{
 
     String s;
     
-    while(*(jc.json)){
+    while(jc.json){
         switch(*(jc.json)){
             case '\\':
+                
+                char c = *(jc.json);
+         
+                if(c == '\\'){
+                    s += '\\';
+                } else if (c == '/'){
+                    s += '/';
+                } else if (c == 'b') {
+                    s += '\b';
+                } else if (c == 'f') {
+                    s += '\f';
+                } else if (c == 'n') {
+                    s += '\n';
+                } else if (c == 'r') {
+                    s += '\r';
+                } else if (c == 't') {
+                    s += '\t';
+                } else if (c == 'u') {
+
+                } else {
+                    goto early_end;
+                }
+
+                jc.json++;
                 break;
             case '"':
                 val.insert_string(s);
+                jc.json++;
                 return STATE::_success;
  
             default:
-            
+                s += *(jc.json++);
+                
         }
     }
 
+
+    early_end:
+        return STATE::_early_end;
 }
 
 auto my_json_parser::my_parse_ws(my_json_context &jc)->STATE{
@@ -93,7 +120,7 @@ auto my_json_parser::my_parse_ws(my_json_context &jc)->STATE{
         jc.json++;
     }
     if(!(jc.json))
-        jc.end == true;
+        return STATE::_early_end;
     return STATE::_success;
 }
 
